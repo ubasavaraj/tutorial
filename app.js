@@ -28,6 +28,7 @@ const initializeDbAndServer = async () => {
 };
 
 initializeDbAndServer();
+
 const hasPriorityAndStatusProperties = (requestQuery) => {
   return (
     requestQuery.priority !== undefined && requestQuery.status !== undefined
@@ -58,7 +59,7 @@ const hasCategoryAndPriorityProperties = (requestQuery) => {
 app.get("/todos/", async (request, response) => {
   let data = null;
   let getTodosQuery = "";
-  const { search_q = "", priority, status } = request.query;
+  const { search_q = "", category, priority, status } = request.query;
 
   switch (true) {
     case hasPriorityAndStatusProperties(request.query):
@@ -91,6 +92,38 @@ app.get("/todos/", async (request, response) => {
       WHERE
         todo LIKE '%${search_q}%'
         AND status = '${status}';`;
+      break;
+    case hasCategoryProperty(request.query):
+      getTodosQuery = `
+      SELECT
+        *
+      FROM
+        todo 
+      WHERE
+        todo LIKE '%${search_q}%'
+        AND category = '${category}';`;
+      break;
+    case hasCategoryAndPriorityProperties(request.query):
+      getTodosQuery = `
+      SELECT
+        *
+      FROM
+        todo 
+      WHERE
+        todo LIKE '%${search_q}%'
+        AND priority = '${priority}'
+        AND category = '${category}';`;
+      break;
+    case hasCategoryAndStatusProperties(request.query):
+      getTodosQuery = `
+      SELECT
+        *
+      FROM
+        todo 
+      WHERE
+        todo LIKE '%${search_q}%'
+        AND status = '${status}'
+        AND category = '${category}';`;
       break;
     default:
       getTodosQuery = `
